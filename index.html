@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Compensación Horaria · Comisión</title>
-<meta name="description" content="Calculadora de compensación horaria para policías desplazados en comisión una semana (lunes a lunes).">
+<meta name="description" content="Calculadora de compensación horaria para policías desplazados en una comisión de servicio.">
 <meta name="theme-color" content="#12306b">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.png" type="image/png">
@@ -56,6 +56,7 @@ label.f{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
 input,select,button{font:inherit;font-size:16px;color:var(--ink)}
 input[type=date],input[type=time],input[type=number],select{width:100%;min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:8px 10px}
 input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid color-mix(in srgb,var(--b100) 60%,transparent);outline-offset:1px}
+.stepper{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px}.stepper input{text-align:center;font-weight:650}.stepper button{min-height:44px;border:1px solid var(--line);background:var(--bg);border-radius:10px;font-size:22px;cursor:pointer;color:var(--ink)}
 .seg{display:flex;flex-wrap:wrap;gap:6px}
 .seg button{flex:1 1 auto;min-height:44px;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 12px;cursor:pointer;font-size:15px}
 .seg button[aria-pressed=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
@@ -128,7 +129,7 @@ details li{margin:4px 0;font-size:15px}
 <header>
   <div class="hwrap">
     <img src="icon-192.png" alt="">
-    <h1>Compensación horaria<small>Semana de comisión · lunes a lunes</small></h1>
+    <h1>Compensación horaria<small>Comisión de servicio · personal desplazado</small></h1>
     <button class="iconbtn" id="install" hidden aria-label="Instalar aplicación" title="Instalar">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
     </button>
@@ -141,10 +142,18 @@ details li{margin:4px 0;font-size:15px}
     <h2>1. Datos de la comisión</h2>
     <div class="grid2">
       <div>
-        <label class="f" for="start">Lunes de inicio</label>
+        <label class="f" for="start">Día de inicio</label>
         <input type="date" id="start">
-        <p class="hint" id="startHint">Se cuentan 8 días: del lunes al lunes siguiente.</p>
       </div>
+      <div>
+        <label class="f" for="dias">Días de comisión</label>
+        <div class="stepper">
+          <button type="button" data-step="-1" aria-label="Un día menos">−</button>
+          <input type="number" id="dias" min="1" max="31" step="1" inputmode="numeric">
+          <button type="button" data-step="1" aria-label="Un día más">+</button>
+        </div>
+      </div>
+      <p class="hint" id="startHint" style="grid-column:1/-1;margin:0"></p>
       <div>
         <label class="f" for="nivel">Jornada semanal</label>
         <select id="nivel">
@@ -199,9 +208,10 @@ details li{margin:4px 0;font-size:15px}
       <ul>
         <li>Base: Circular de la DGP de 18/12/2015 sobre la jornada laboral de la Policía Nacional, apartado 3.5, y tabla de compensación horaria del SUP.</li>
         <li>Cada hora trabajada se convierte en horas computables: diurna laborable ×1 (60 min), nocturna laborable ×1,35 (81 min), festiva ×1,75 (105 min).</li>
-        <li>Desde las 15:00 del sábado hasta las 24:00 del domingo todo es festivo, también la noche del sábado. La madrugada del lunes (0–6 h) vuelve a ser nocturna laborable.</li>
+        <li>Desde las 15:00 del sábado hasta las 24:00 del domingo todo es festivo, también la noche del sábado. La madrugada del lunes (0–6 h) vuelve a ser nocturna laborable, salvo que sea festivo.</li>
         <li>Un día marcado como festivo computa entero (0–24 h) a 105 min/h. El 2 de octubre (Santos Ángeles Custodios) es no laborable.</li>
         <li>Localización (apartado 7): cada hora cuenta 15 minutos. Si te activan, mete como «Servicio» el tiempo desde el aviso hasta la vuelta: ese tramo sustituye a la localización y se calcula con los índices.</li>
+        <li>Jornada a restar: la semanal (37,5 h o 40 h) dividida entre 5, por cada día de lunes a viernes que dure la comisión.</li>
         <li>Las pausas (30 min, o 40 de noche) cuentan como trabajo efectivo: no hay que descontarlas.</li>
         <li>El exceso se compensa con 1 jornada de libranza por cada 7,5 h. Lo que sobra se acumula hasta llegar a otras 7,5 h. A petición propia puede cobrarse como gratificación por servicios extraordinarios, si hay presupuesto.</li>
         <li>Los días de compensación deben disfrutarse antes de que pasen 45 días desde que se genera el derecho.</li>
@@ -221,7 +231,7 @@ details li{margin:4px 0;font-size:15px}
 
 <script>
 {
-const DN=['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo','Lunes','Martes'];
+const WD=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
 const SETS={
   A:{M:['07:00','15:00'],T:['15:00','23:00'],N:['23:00','07:00']},
   B:{M:['07:30','15:00'],T:['15:00','22:30'],N:['22:30','07:30']},
@@ -229,11 +239,10 @@ const SETS={
 };
 const ORD=[['om','Mañana (7:30–15:00)','07:30','15:00'],['of','Mañana fija (9:00–14:30)','09:00','14:30'],['ot','Tarde (14:30–22:00)','14:30','22:00'],['on','Noche (22:00–8:00)','22:00','08:00'],['mt','Mañana y tarde (8:00–18:00)','08:00','18:00']];
 const TYPES={P:'Servicio',V:'Viaje',L:'Localización'};
-const KEY='compensacion-comision-v1';
+const KEY='compensacion-comision-v2';
 const $=s=>document.querySelector(s);
-const blankWeek=()=>Array.from({length:8},()=>[]);
+const blankWeek=(n=7)=>Array.from({length:n},()=>[]);
 
-const mondayOf=d=>{const x=new Date(d);x.setHours(12,0,0,0);const w=(x.getDay()+6)%7;x.setDate(x.getDate()-w);return x};
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const parseISO=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12)};
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
@@ -242,30 +251,38 @@ const fmtDateL=d=>d.toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',ye
 const FIXED={'1-1':'Año Nuevo','1-6':'Reyes','5-1':'Día del Trabajo','5-30':'Día de Canarias','8-15':'Asunción','10-2':'Ángeles Custodios','10-12':'Fiesta Nacional','11-1':'Todos los Santos','12-6':'Constitución','12-8':'Inmaculada','12-25':'Navidad'};
 const holi=d=>FIXED[`${d.getMonth()+1}-${d.getDate()}`]||'';
 
-function defaults(){return{start:iso(mondayOf(new Date())),nivel:'37.5',set:'A',fest:Array(8).fill(false),com:blankWeek(),cua:blankWeek(),resta:{mode:'jornada',manual:37.5,festRed:true},theme:'auto'}}
+function defaults(){return{start:iso(new Date()),dias:7,nivel:'37.5',set:'A',fest:Array(7).fill(false),com:blankWeek(),cua:blankWeek(),resta:{mode:'jornada',manual:37.5,festRed:true},theme:'auto'}}
 let S;
 try{S=Object.assign(defaults(),JSON.parse(localStorage.getItem(KEY)||'null')||{})}catch(e){S=defaults()}
+if(!S.dias){S.dias=S.com.length||7}
+fixLen();
 if(!S.saved){S.fest=autoFest(S.start)}
 function save(){S.saved=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function autoFest(start){const m=parseISO(start);return Array.from({length:8},(_,i)=>!!holi(addDays(m,i)))}
+function autoFest(start){const m=parseISO(start);return Array.from({length:S.dias},(_,i)=>!!holi(addDays(m,i)))}
+function fixLen(){const n=S.dias,m=parseISO(S.start);
+  ['com','cua'].forEach(k=>{S[k]=S[k].slice(0,n);while(S[k].length<n)S[k].push([])});
+  S.fest=S.fest.slice(0,n);while(S.fest.length<n)S.fest.push(!!holi(addDays(m,S.fest.length)));}
+const dayDate=i=>addDays(parseISO(S.start),i);
+const dayName=i=>WD[dayDate(i).getDay()];
+const dowM=i=>(dayDate(i).getDay()+6)%7;
 
 /* ---------- motor de cálculo ---------- */
 const toMin=t=>{const [h,m]=(t||'0:0').split(':').map(Number);return h*60+(m||0)};
-function rate(d,m,fest){ // d: 0..8 (0=lunes)
-  const dow=d%7;
+function rate(d,m,fest){ // d: índice de día desde el inicio
+  const dow=dowM(d);
   if(fest[d]||dow===6||(dow===5&&m>=900))return 1.75;
   if(m<360||m>=1320)return 1.35;
   return 1;
 }
 function compute(week,fest){
-  const N=9*1440,arr=new Uint8Array(N),f=fest.concat([false]);
+  const L=week.length,N=(L+1)*1440,arr=new Uint8Array(N),f=fest.concat([!!holi(dayDate(L))]);
   const code={L:1,V:2,P:3};
   week.forEach((tr,d)=>tr.forEach(t=>{
     let s=toMin(t.s),e=toMin(t.e);if(e<=s)e+=1440;
     const a=d*1440+s,b=Math.min(N,d*1440+e),c=code[t.t]||3;
     for(let i=a;i<b;i++)if(arr[i]<c)arr[i]=c;
   }));
-  const days=Array.from({length:9},()=>({b100:0,b135:0,b175:0,loc:0,via:0}));
+  const days=Array.from({length:L+1},()=>({b100:0,b135:0,b175:0,loc:0,via:0}));
   for(let i=0;i<N;i++){const c=arr[i];if(!c)continue;const d=(i/1440)|0,m=i%1440,o=days[d];
     if(c===1){o.loc++;continue}
     if(c===2)o.via++;
@@ -300,13 +317,13 @@ function presetTramo(v){
 function renderWeek(el,key){
   const m=parseISO(S.start),week=S[key],res=compute(week,S.fest);
   el.innerHTML=week.map((tr,d)=>{
-    const date=addDays(m,d),o=res.days[d],h=holi(date),fest=S.fest[d]||d%7===6;
+    const date=addDays(m,d),o=res.days[d],h=holi(date),fest=S.fest[d]||dowM(d)===6;
     const tot=o.real+o.loc;
     const bar=tot?`<div class="bar">${[['b100','--b100'],['b135','--b135'],['b175','--b175'],['loc','--bloc']].map(([k,c])=>o[k]?`<span style="width:${o[k]/tot*100}%;background:var(${c})"></span>`:'').join('')}</div>`:'';
     return `<div class="day${fest?' fest':''}" data-d="${d}">
       <div class="dhead">
-        <div class="dname"><b>${DN[d]}${d===7?' (siguiente)':''}</b><span>${fmtDate(date)}${h?' · '+h:''}</span></div>
-        ${d%7===6?'<span class="tog" style="color:var(--mute)">Domingo: festivo</span>':`<label class="tog"><input type="checkbox" data-a="fest" ${S.fest[d]?'checked':''}>Festivo</label>`}
+        <div class="dname"><b>${dayName(d)}</b><span>Día ${d+1} · ${fmtDate(date)}${h?' · '+h:''}</span></div>
+        ${dowM(d)===6?'<span class="tog" style="color:var(--mute)">Domingo: festivo</span>':`<label class="tog"><input type="checkbox" data-a="fest" ${S.fest[d]?'checked':''}>Festivo</label>`}
         <div class="dsum">${tot?`${hm(o.real+o.loc)} h → <b>${hm(o.comp)}</b>`:'Libre'}</div>
       </div>
       ${tr.map((t,i)=>{let s=toMin(t.s),e=toMin(t.e);const nx=e<=s;return `<div class="tramo" data-i="${i}">
@@ -315,20 +332,20 @@ function renderWeek(el,key){
         <input type="time" step="300" value="${esc(t.e)}" data-a="e" aria-label="Fin">
         <select class="tt" data-a="t" aria-label="Tipo">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${t.t===k?'selected':''}>${v}</option>`).join('')}</select>
         <button class="del" data-a="del" aria-label="Quitar tramo">×</button>
-        ${nx?`<span class="nx">Termina el ${DN[d+1].toLowerCase()} a las ${esc(t.e)}${e===s?' (24 h)':''}</span>`:''}
+        ${nx?`<span class="nx">Termina el ${dayName(d+1).toLowerCase()} a las ${esc(t.e)}${e===s?' (24 h)':''}</span>`:''}
       </div>`}).join('')}
       ${bar}
       <div class="dact">
         <select data-a="add" aria-label="Añadir tramo">${presetOptions()}</select>
-        ${tr.length&&d<7?`<button class="ghost" data-a="copy">Copiar al día siguiente</button>`:''}
+        ${tr.length&&d<week.length-1?`<button class="ghost" data-a="copy">Copiar al día siguiente</button>`:''}
         ${tr.length?`<button class="ghost" data-a="clear">Vaciar</button>`:''}
       </div>
     </div>`;}).join('')+
-    (res.days[8].real+res.days[8].loc?`<p class="hint">Incluye ${hm(res.days[8].real+res.days[8].loc)} h de la madrugada del martes siguiente (→ ${hm(res.days[8].comp)} computables).</p>`:'');
+    (()=>{const L=week.length,o=res.days[L];return o.real+o.loc?`<p class="hint">Incluye ${hm(o.real+o.loc)} h de la madrugada del ${dayName(L).toLowerCase()} ${fmtDate(dayDate(L))} (→ ${hm(o.comp)} computables).</p>`:''})();
 }
 function updNote(row,d,t){
   let n=row.querySelector('.nx');const s=toMin(t.s),e=toMin(t.e);
-  if(e<=s){if(!n){n=document.createElement('span');n.className='nx';row.appendChild(n)}n.textContent=`Termina el ${DN[d+1].toLowerCase()} a las ${t.e}${e===s?' (24 h)':''}`}
+  if(e<=s){if(!n){n=document.createElement('span');n.className='nx';row.appendChild(n)}n.textContent=`Termina el ${dayName(d+1).toLowerCase()} a las ${t.e}${e===s?' (24 h)':''}`}
   else if(n)n.remove();
 }
 function bindWeek(el,key){
@@ -341,7 +358,7 @@ function bindWeek(el,key){
     else if(a==='s'||a==='e'){if(!t.value)return;week[d][i][a]=t.value;save();updNote(row,d,week[d][i]);refresh(false);return}
     else if(a==='del'){week[d].splice(i,1)}
     else if(a==='add'){if(!t.value)return;week[d].push(presetTramo(t.value))}
-    else if(a==='copy'){week[d+1]=week[d+1].concat(week[d].map(x=>({...x})));toast(`Copiado al ${DN[d+1].toLowerCase()}`)}
+    else if(a==='copy'){week[d+1]=week[d+1].concat(week[d].map(x=>({...x})));toast(`Copiado al ${dayName(d+1).toLowerCase()}`)}
     else if(a==='clear'){week[d]=[]}
     else return;
     save();refresh();
@@ -357,19 +374,18 @@ function restaMin(){
   if(r.mode==='none')return{min:0,label:'Nada'};
   if(r.mode==='manual')return{min:Math.round((+r.manual||0)*60),label:'Horas indicadas'};
   if(r.mode==='cuadrante'){const c=compute(S.cua,S.fest);return{min:c.tot.comp,label:'Cuadrante habitual',real:c.tot.real+c.tot.loc}}
-  const base=+S.nivel*60,per=base/5;
-  const nf=S.fest.slice(0,5).filter(Boolean).length;
-  const min=r.festRed?Math.max(0,base-nf*per):base;
-  return{min,label:`Jornada ${S.nivel.replace('.',',')} h`+(r.festRed&&nf?` − ${nf} festivo${nf>1?'s':''}`:'')};
+  const {lab,nf,per}=labDays(),n=lab-(r.festRed?nf:0);
+  return{min:n*per*60,label:`${n} día${n===1?'':'s'} laborable${n===1?'':'s'} × ${String(per).replace('.',',')} h`};
 }
+function labDays(){let lab=0,nf=0;for(let i=0;i<S.dias;i++)if(dowM(i)<5){lab++;if(S.fest[i])nf++}return{lab,nf,per:+S.nivel/5}}
 function renderResta(){
   document.querySelectorAll('#restaMode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===S.resta.mode));
   const el=$('#restaBody'),r=S.resta;
   if(r.mode==='none')el.innerHTML='<p class="hint">Se compensan todas las horas computadas de la comisión.</p>';
   else if(r.mode==='jornada'){
-    const nf=S.fest.slice(0,5).filter(Boolean).length,per=(+S.nivel/5).toLocaleString('es-ES');
-    el.innerHTML=`<p class="hint" style="margin-top:0">Se resta tu jornada semanal de ${S.nivel.replace('.',',')} h, la que habrías hecho igualmente en tu plantilla.</p>
-    <label class="tog"><input type="checkbox" id="festRed" ${r.festRed?'checked':''}>Descontar ${per} h por cada festivo de lunes a viernes${nf?` (${nf} esta semana)`:''}</label>`;
+    const {lab,nf,per}=labDays(),ps=per.toLocaleString('es-ES');
+    el.innerHTML=`<p class="hint" style="margin-top:0">Jornada de ${S.nivel.replace('.',',')} h semanales repartida en ${ps} h por cada día de lunes a viernes de la comisión: <b>${lab} día${lab===1?'':'s'}</b> en estas fechas. Es lo que habrías hecho igualmente en tu plantilla.</p>
+    <label class="tog"><input type="checkbox" id="festRed" ${r.festRed?'checked':''}>No contar los festivos de lunes a viernes${nf?` (${nf} en estas fechas)`:''}</label>`;
   }else if(r.mode==='manual'){
     el.innerHTML=`<label class="f" for="manual">Horas a restar</label><input type="number" id="manual" min="0" step="0.25" inputmode="decimal" value="${r.manual}"><p class="hint">Por ejemplo, las horas computables de tu cuadrante de esa semana, si ya las tienes calculadas.</p>`;
   }else{
@@ -383,7 +399,7 @@ let last={};
 function renderResult(){
   const c=compute(S.com,S.fest),r=restaMin(),t=c.tot;
   const exceso=t.comp-r.min,jor=exceso>0?Math.floor(exceso/450+1e-9):0,resto=exceso>0?exceso-jor*450:0;
-  const m=parseISO(S.start),end=addDays(m,7),lim=addDays(end,45);
+  const m=parseISO(S.start),end=addDays(m,S.dias-1),lim=addDays(end,45);
   last={c,r,exceso,jor,resto,m,end,lim};
   $('#res').innerHTML=`
     <div class="lbl">Compensación por la comisión</div>
@@ -395,21 +411,21 @@ function renderResult(){
       <div class="kpi"><b>−${hm(r.min)} h</b><span>${esc(r.label)}</span></div>
       <div class="kpi"><b>${hm(Math.max(0,exceso))} h</b><span>Exceso a compensar (${dec(Math.max(0,exceso))} h)</span></div>
     </div>
-    ${jor?`<p class="sub" style="font-size:14px;opacity:.9">Disfrute orientativo antes del ${fmtDateL(lim)} (45 días contados desde el ${fmtDateL(end)}).</p>`:''}
+    ${jor?`<p class="sub" style="font-size:14px;opacity:.9">Disfrute orientativo antes del ${fmtDateL(lim)} (45 días contados desde el último día de comisión, ${fmtDateL(end)}).</p>`:''}
     <div class="actions">
       <button class="btn pri" data-share><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg>Compartir resultado</button>
       <button class="btn sec" data-copy>Copiar</button>
     </div>`;
   $('#stickyT').innerHTML=exceso>0?`<b>${jor} ${jor===1?'jornada':'jornadas'}${resto?' + '+hm(resto)+' h':''}</b>Exceso ${hm(exceso)} h · computables ${hm(t.comp)} h`:`<b>Sin exceso</b>Computables ${hm(t.comp)} h · se restan ${hm(r.min)} h`;
   // tabla
-  const rows=c.days.map((o,d)=>({o,d})).filter(x=>x.d<8||x.o.real+x.o.loc);
+  const rows=c.days.map((o,d)=>({o,d})).filter(x=>x.d<S.dias||x.o.real+x.o.loc);
   $('#tbl').innerHTML=`<thead><tr><th>Día</th><th>Diurna<br>×1</th><th>Noct.<br>×1,35</th><th>Fest.<br>×1,75</th><th>Loc.<br>×0,25</th><th>Comput.</th></tr></thead>
-  <tbody>${rows.map(({o,d})=>`<tr><td>${DN[d].slice(0,3)} ${addDays(m,d).getDate()}${S.fest[d]?' ★':''}</td><td>${o.b100?hm(o.b100):'–'}</td><td>${o.b135?hm(o.b135):'–'}</td><td>${o.b175?hm(o.b175):'–'}</td><td>${o.loc?hm(o.loc):'–'}</td><td><b>${o.comp?hm(o.comp):'–'}</b></td></tr>`).join('')}</tbody>
+  <tbody>${rows.map(({o,d})=>`<tr><td>${dayName(d).slice(0,3)} ${addDays(m,d).getDate()}${S.fest[d]?' ★':''}</td><td>${o.b100?hm(o.b100):'–'}</td><td>${o.b135?hm(o.b135):'–'}</td><td>${o.b175?hm(o.b175):'–'}</td><td>${o.loc?hm(o.loc):'–'}</td><td><b>${o.comp?hm(o.comp):'–'}</b></td></tr>`).join('')}</tbody>
   <tfoot><tr><td>Total</td><td>${hm(t.b100)}</td><td>${hm(t.b135)}</td><td>${hm(t.b175)}</td><td>${hm(t.loc)}</td><td>${hm(t.comp)}</td></tr></tfoot>`;
 }
 function shareText(){
   const {c,r,exceso,jor,resto,m,end,lim}=last,t=c.tot;
-  const L=[`🕒 Compensación horaria · comisión`,`Semana: ${fmtDateL(m)} – ${fmtDateL(end)}`,``,
+  const L=[`🕒 Compensación horaria · comisión`,`Comisión: ${fmtDateL(m)} – ${fmtDateL(end)} (${S.dias} día${S.dias===1?'':'s'})`,``,
     `Horas reales: ${hm(t.real+t.loc)} h`,
     `  · Diurnas (×1): ${hm(t.b100)} h`,`  · Nocturnas (×1,35): ${hm(t.b135)} h`,`  · Festivas (×1,75): ${hm(t.b175)} h`];
   if(t.loc)L.push(`  · Localización (×0,25): ${hm(t.loc)} h`);
@@ -419,7 +435,7 @@ function shareText(){
     exceso>0?`➡️ ${jor} ${jor===1?'jornada':'jornadas'} de libranza${resto?` + ${hm(resto)} h acumuladas`:''}`:'➡️ Sin jornadas de compensación');
   if(jor)L.push(`Disfrute orientativo antes del ${fmtDateL(lim)}`);
   L.push('','Detalle por día:');
-  c.days.forEach((o,d)=>{if(o.real+o.loc)L.push(`${DN[d].slice(0,3)} ${addDays(m,d).getDate()}${S.fest[d]?' (festivo)':''}: ${hm(o.real+o.loc)} h → ${hm(o.comp)} h`)});
+  c.days.forEach((o,d)=>{if(o.real+o.loc)L.push(`${dayName(d).slice(0,3)} ${addDays(m,d).getDate()}${S.fest[d]?' (festivo)':''}: ${hm(o.real+o.loc)} h → ${hm(o.comp)} h`)});
   L.push('','Cálculo según Circular DGP 18/12/2015 (apdo. 3.5). Orientativo.');
   return L.join('\n');
 }
@@ -448,7 +464,10 @@ function applyTheme(){
 }
 
 /* ---------- arranque ---------- */
+function renderHint(){const m=parseISO(S.start),e=addDays(m,S.dias-1),f=d=>d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+  $('#startHint').textContent=S.dias===1?`Un día: ${f(m)}.`:`Del ${f(m)} al ${f(e)}, ${S.dias} días.`}
 function refresh(full=true){
+  renderHint();
   if(full){renderWeek($('#weekCom'),'com');renderResta();}
   else{ // actualizar sin perder el foco: solo resúmenes
     const keep=document.activeElement;renderWeekSums();if(keep&&keep.isConnected)keep.focus();
@@ -459,9 +478,11 @@ function renderWeekSums(){
   ['com','cua'].forEach(k=>{const el=k==='com'?$('#weekCom'):$('#weekCua');if(!el)return;const res=compute(S[k],S.fest);
     el.querySelectorAll('.day').forEach(day=>{const o=res.days[+day.dataset.d],tot=o.real+o.loc;day.querySelector('.dsum').innerHTML=tot?`${hm(tot)} h → <b>${hm(o.comp)}</b>`:'Libre'})});
 }
-$('#start').value=S.start;$('#nivel').value=S.nivel;$('#set').value=S.set;
-$('#start').addEventListener('change',e=>{if(!e.target.value)return;const mo=mondayOf(parseISO(e.target.value));S.start=iso(mo);
-  if(S.start!==e.target.value)toast('Ajustado al lunes de esa semana');e.target.value=S.start;S.fest=autoFest(S.start);save();refresh()});
+$('#start').value=S.start;$('#dias').value=S.dias;$('#nivel').value=S.nivel;$('#set').value=S.set;
+$('#start').addEventListener('change',e=>{if(!e.target.value)return;S.start=e.target.value;S.fest=autoFest(S.start);save();refresh()});
+function setDias(n){n=Math.max(1,Math.min(31,Math.round(+n)||1));S.dias=n;$('#dias').value=n;fixLen();save();refresh()}
+$('#dias').addEventListener('change',e=>setDias(e.target.value));
+document.querySelectorAll('[data-step]').forEach(b=>b.addEventListener('click',()=>setDias(S.dias+ +b.dataset.step)));
 $('#nivel').addEventListener('change',e=>{S.nivel=e.target.value;save();refresh()});
 $('#set').addEventListener('change',e=>{S.set=e.target.value;save();refresh()});
 $('#restaMode').addEventListener('click',e=>{const v=e.target.dataset.v;if(!v)return;S.resta.mode=v;save();refresh()});
@@ -472,7 +493,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-share]'))doShar
 $('#shareMini').addEventListener('click',doShare);
 $('#theme').addEventListener('click',()=>{S.theme={auto:'light',light:'dark',dark:'auto'}[S.theme];save();applyTheme();toast('Tema '+TNAME[S.theme])});
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);
-$('#reset').addEventListener('click',()=>{const th=S.theme;S=defaults();S.theme=th;S.fest=autoFest(S.start);$('#start').value=S.start;$('#nivel').value=S.nivel;$('#set').value=S.set;save();refresh();toast('Datos borrados')});
+$('#reset').addEventListener('click',()=>{const th=S.theme;S=defaults();S.theme=th;S.fest=autoFest(S.start);$('#start').value=S.start;$('#dias').value=S.dias;$('#nivel').value=S.nivel;$('#set').value=S.set;save();refresh();toast('Datos borrados')});
 applyTheme();refresh();
 
 let deferred;
