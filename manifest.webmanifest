@@ -1,0 +1,17 @@
+{
+  "name": "Compensación Horaria · Comisión",
+  "short_name": "Compensación",
+  "description": "Calcula la compensación horaria de una semana de comisión (lunes a lunes) según la Circular DGP de 18/12/2015.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6fb",
+  "theme_color": "#12306b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

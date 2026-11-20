@@ -1,0 +1,11 @@
+COMPENSACIÓN HORARIA · COMISIÓN (PWA)
+
+Para que se pueda instalar como app, súbela a un alojamiento HTTPS. Por ejemplo:
+- Netlify Drop (app.netlify.com/drop): arrastra la carpeta descomprimida.
+- GitHub Pages: sube los archivos a un repositorio y activa Pages.
+
+Después abre la dirección en el móvil y usa "Instalar" (Android/Chrome)
+o Compartir > "Añadir a pantalla de inicio" (iPhone/Safari).
+Funciona sin conexión una vez abierta.
+
+Archivos: index.html, manifest.webmanifest, sw.js e iconos.
